@@ -80,7 +80,7 @@ export async function getProductsForUser(userId: string): Promise<ProductForHome
   const supplierIds = [...new Set(products.map((p) => p.supplierId))];
 
   const [categories, suppliers] = await Promise.all([
-    prisma.category.findMany({
+    prisma.productCategory.findMany({
       where: { id: { in: categoryIds } },
       select: { id: true, name: true },
     }),
@@ -143,7 +143,7 @@ export async function getProductsBySupplierId(
   const ownerIds = [...new Set(products.map((p) => p.userId))];
 
   const [categories, suppliers, ownerUsers] = await Promise.all([
-    prisma.category.findMany({
+    prisma.productCategory.findMany({
       where: { id: { in: categoryIds } },
       select: { id: true, name: true },
     }),
@@ -195,7 +195,7 @@ export async function getProductsBySupplierId(
  * Same query as GET /api/categories; returns serializable objects (dates as ISO strings).
  */
 export async function getCategoriesForUser(userId: string): Promise<CategoryForHome[]> {
-  const categories = await prisma.category.findMany({
+  const categories = await prisma.productCategory.findMany({
     where: { userId },
   });
   return categories.map((c) => ({

@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
     const supplierIds = [...new Set(allOwnerProducts.map((p) => p.supplierId))];
 
     const [categories, suppliers] = await Promise.all([
-      prisma.category.findMany({
+      prisma.productCategory.findMany({
         where: { id: { in: categoryIds } },
         select: { id: true, name: true },
       }),

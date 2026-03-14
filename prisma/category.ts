@@ -9,7 +9,7 @@ export const createCategory = async (data: {
   userId: string;
 }) => {
   logger.debug("Creating category with data:", data);
-  return prisma.category.create({
+  return prisma.productCategory.create({
     data: {
       name: data.name,
       userId: data.userId,
@@ -20,7 +20,7 @@ export const createCategory = async (data: {
 };
 
 export const getCategoriesByUser = async (userId: string) => {
-  return prisma.category.findMany({
+  return prisma.productCategory.findMany({
     where: { userId },
   });
 };
@@ -34,7 +34,7 @@ export const getCategoriesByUser = async (userId: string) => {
  * @returns Promise<Category | null> - Category or null if not found
  */
 export const getCategoryById = async (categoryId: string, userId: string) => {
-  return prisma.category.findFirst({
+  return prisma.productCategory.findFirst({
     where: {
       id: categoryId,
       userId, // Ensure user can only access their own categories
@@ -49,7 +49,7 @@ export const updateCategory = async (
   id: string,
   data: { name?: string; updatedBy?: string }
 ) => {
-  return prisma.category.update({
+  return prisma.productCategory.update({
     where: { id },
     data: {
       ...(data.name && { name: data.name }),
@@ -60,7 +60,7 @@ export const updateCategory = async (
 };
 
 export const deleteCategory = async (id: string) => {
-  return prisma.category.delete({
+  return prisma.productCategory.delete({
     where: { id },
   });
 };

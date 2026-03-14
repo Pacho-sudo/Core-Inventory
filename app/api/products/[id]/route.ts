@@ -102,7 +102,7 @@ export async function GET(
 
     // Fetch category and supplier details
     const [category, supplier] = await Promise.all([
-      prisma.category.findUnique({
+      prisma.productCategory.findUnique({
         where: { id: product.categoryId },
         select: { id: true, name: true, description: true, status: true },
       }),
@@ -151,6 +151,9 @@ export async function GET(
       id: product.id,
       name: product.name,
       sku: product.sku,
+      unitOfMeasure: product.unitOfMeasure,
+      reorderLevel: product.reorderLevel,
+      initialStock: product.initialStock,
       price: Number(product.price),
       quantity: Number(product.quantity),
       reservedQuantity: Number(product.reservedQuantity ?? 0),

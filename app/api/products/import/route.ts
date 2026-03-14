@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
             if (!categoryName) {
               throw new Error("Category is required");
             }
-            const category = await prisma.category.findFirst({
+            const category = await prisma.productCategory.findFirst({
               where: {
                 name: { equals: categoryName, mode: "insensitive" },
                 userId,
@@ -223,7 +223,7 @@ export async function POST(request: NextRequest) {
       }> = [...validationResult.errors];
 
       // Get all categories and suppliers for lookup
-      const categories = await prisma.category.findMany({
+      const categories = await prisma.productCategory.findMany({
         where: { userId },
       });
       const suppliers = await prisma.supplier.findMany({

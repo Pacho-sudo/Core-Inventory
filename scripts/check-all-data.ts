@@ -89,7 +89,7 @@ async function checkAllData() {
 
     // Get all categories
     console.log("📁 Categories:");
-    const categories = await prisma.category.findMany({
+    const categories = await prisma.productCategory.findMany({
       select: {
         id: true,
         name: true,

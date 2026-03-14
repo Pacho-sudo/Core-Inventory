@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     const userId = session.id;
 
-    const categories = await prisma.category.findMany({
+    const categories = await prisma.productCategory.findMany({
       where: { userId },
     });
 
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create category with audit fields and new optional fields
-    const category = await prisma.category.create({
+    const category = await prisma.productCategory.create({
       data: {
         name: name.trim(),
         userId,
@@ -120,7 +120,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Verify category belongs to user
-    const existingCategory = await prisma.category.findFirst({
+    const existingCategory = await prisma.productCategory.findFirst({
       where: { id, userId },
     });
 
@@ -157,7 +157,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update category with audit fields and new optional fields
-    const category = await prisma.category.update({
+    const category = await prisma.productCategory.update({
       where: { id },
       data: updateData,
     });
@@ -209,7 +209,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Verify category belongs to user
-    const existingCategory = await prisma.category.findFirst({
+    const existingCategory = await prisma.productCategory.findFirst({
       where: { id, userId },
     });
 
@@ -220,7 +220,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    await prisma.category.delete({
+    await prisma.productCategory.delete({
       where: { id },
     });
 

@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
     const supplierIds = [...new Set(products.map((p) => p.supplierId))];
 
     const categorySupplierPromise = Promise.all([
-      prisma.category.findMany({
+      prisma.productCategory.findMany({
         where: { id: { in: categoryIds } },
         select: { id: true, name: true },
       }),
@@ -124,6 +124,9 @@ export async function GET(request: NextRequest) {
       id: product.id,
       name: product.name,
       sku: product.sku,
+      unitOfMeasure: product.unitOfMeasure,
+      reorderLevel: product.reorderLevel,
+      initialStock: product.initialStock,
       price: Number(product.price),
       quantity: Number(product.quantity),
       reservedQuantity: Number(product.reservedQuantity ?? 0),
@@ -189,6 +192,9 @@ export async function POST(request: NextRequest) {
       imageUrl,
       imageFileId,
       expirationDate,
+      unitOfMeasure,
+      reorderLevel,
+      initialStock,
     } = body;
 
     // Validate required fields
@@ -220,16 +226,63 @@ export async function POST(request: NextRequest) {
         quantity: BigInt(quantity) as any,
         status,
         userId,
-        createdBy: userId, // Set createdBy same as userId
+        createdBy: userId,
         categoryId,
         supplierId,
         imageUrl: imageUrl || null,
         imageFileId: imageFileId || null,
         expirationDate: expirationDate ? new Date(expirationDate) : null,
+        unitOfMeasure: unitOfMeasure || "Unit",
+        reorderLevel: reorderLevel || 0,
+        initialStock: initialStock || 0,
         createdAt: new Date(),
-        updatedAt: null, // Set to null on creation - will be set when updated
+        updatedAt: null,
       },
     });
+
+    // Handle initial stock integration
+    if (initialStock > 0) {
+      try {
+        // Find default or first warehouse
+        let warehouse = await prisma.warehouse.findFirst({
+          where: { name: { contains: "Main", mode: "insensitive" } }
+        });
+
+        if (!warehouse) {
+          warehouse = await prisma.warehouse.findFirst();
+        }
+
+        if (warehouse) {
+          // Create stock entry
+          await prisma.stock.create({
+            data: {
+              productId: product.id,
+              warehouseId: warehouse.id,
+              quantity: initialStock,
+              userId,
+            }
+          });
+
+          // Create stock movement
+          await prisma.stockMovement.create({
+            data: {
+              productId: product.id,
+              movementType: "ADJUSTMENT",
+              quantity: initialStock,
+              destinationWarehouseId: warehouse.id,
+              referenceType: "Initial Stock",
+              referenceId: product.id,
+              notes: "Automatic initial stock adjustment on product creation",
+              userId,
+            }
+          });
+          
+          logger.info(`Initialized ${initialStock} stock for product ${product.sku} in warehouse ${warehouse.name}`);
+        }
+      } catch (stockError) {
+        logger.error("Failed to initialize stock/movement for new product:", stockError);
+      }
+    }
 
     createAuditLog({
       userId,
@@ -240,7 +293,7 @@ export async function POST(request: NextRequest) {
     }).catch(() => {});
 
     // Fetch category and supplier data for the response
-    const category = await prisma.category.findUnique({
+    const category = await prisma.productCategory.findUnique({
       where: { id: categoryId },
     });
     const supplier = await prisma.supplier.findUnique({
@@ -310,6 +363,9 @@ export async function POST(request: NextRequest) {
       id: product.id,
       name: product.name,
       sku: product.sku,
+      unitOfMeasure: product.unitOfMeasure,
+      reorderLevel: product.reorderLevel,
+      initialStock: product.initialStock,
       price: Number(product.price),
       quantity: Number(product.quantity),
       status: product.status,
@@ -433,6 +489,8 @@ export async function PUT(request: NextRequest) {
               ? null
               : new Date(expirationDate),
         }),
+        ...(unitOfMeasure !== undefined && { unitOfMeasure }),
+        ...(reorderLevel !== undefined && { reorderLevel }),
         updatedBy: session.id, // Track who updated the product
         updatedAt: new Date(), // Update timestamp
       },
@@ -461,7 +519,7 @@ export async function PUT(request: NextRequest) {
     }).catch(() => {});
 
     // Fetch category and supplier data for the response
-    const category = await prisma.category.findUnique({
+    const category = await prisma.productCategory.findUnique({
       where: { id: product.categoryId },
     });
     const supplier = await prisma.supplier.findUnique({
@@ -560,6 +618,9 @@ export async function PUT(request: NextRequest) {
       id: product.id,
       name: product.name,
       sku: product.sku,
+      unitOfMeasure: product.unitOfMeasure,
+      reorderLevel: product.reorderLevel,
+      initialStock: product.initialStock,
       price: Number(product.price),
       quantity: Number(product.quantity),
       status: product.status,

@@ -117,7 +117,7 @@ export async function GET(
       invoicesForDue,
       prisma.product.count({ where: { userId: id } }),
       prisma.supplier.count({ where: { userId: id } }),
-      prisma.category.count({ where: { userId: id } }),
+      prisma.productCategory.count({ where: { userId: id } }),
       prisma.warehouse.count({ where: { userId: id } }),
       prisma.supplier.findMany({
         where: { userId: id },

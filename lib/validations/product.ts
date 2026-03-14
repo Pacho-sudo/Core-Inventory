@@ -69,6 +69,9 @@ export const createProductSchema = z.object({
   categoryId: z.string().min(1),
   supplierId: z.string().min(1),
   userId: z.string().min(1),
+  unitOfMeasure: z.string().optional(),
+  reorderLevel: z.number().nonnegative().optional(),
+  initialStock: z.number().nonnegative().optional(),
 });
 
 /**

@@ -20,6 +20,9 @@ export interface Product {
   status?: ProductStatus;
   createdAt: Date;
   updatedAt?: Date | null;
+  unitOfMeasure?: string;
+  reorderLevel?: number;
+  initialStock?: number;
   userId: string;
   createdBy: string; // User ID who created the product
   updatedBy?: string | null; // User ID who last updated the product
@@ -75,6 +78,9 @@ export interface CreateProductInput {
   imageUrl?: string;
   imageFileId?: string;
   expirationDate?: string; // ISO date string
+  unitOfMeasure?: string;
+  reorderLevel?: number;
+  initialStock?: number;
 }
 
 /**
@@ -92,4 +98,6 @@ export interface UpdateProductInput {
   imageUrl?: string;
   imageFileId?: string;
   expirationDate?: string | null; // ISO date string or null to clear
+  unitOfMeasure?: string;
+  reorderLevel?: number;
 }

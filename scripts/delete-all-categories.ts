@@ -27,7 +27,7 @@ async function deleteAllCategories() {
     console.log("🚀 Starting deletion of all categories...\n");
 
     // Count categories before deletion
-    const countBefore = await prisma.category.count();
+    const countBefore = await prisma.productCategory.count();
     console.log(`📊 Found ${countBefore} category(ies) in database\n`);
 
     if (countBefore === 0) {
@@ -37,7 +37,7 @@ async function deleteAllCategories() {
 
     // Delete all categories
     console.log("📁 Deleting all categories...");
-    const deletedCategories = await prisma.category.deleteMany({});
+    const deletedCategories = await prisma.productCategory.deleteMany({});
     console.log(`   ✓ Deleted ${deletedCategories.count} category(ies)\n`);
 
     console.log("✅ Successfully deleted all categories!");

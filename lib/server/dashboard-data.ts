@@ -168,7 +168,7 @@ export async function getDashboardForAdmin(userId: string): Promise<DashboardSta
   ] = await Promise.all([
     prisma.product.count({ where: whereUser }),
     prisma.supplier.count({ where: whereSuppliers }),
-    prisma.category.count({ where: whereUser }),
+    prisma.productCategory.count({ where: whereUser }),
     prisma.order.count({ where: whereStoreOrders }),
     prisma.invoice.count({ where: whereInvoiceForStore }),
     prisma.warehouse.count({ where: whereUser }),
@@ -325,8 +325,8 @@ export async function getDashboardForAdmin(userId: string): Promise<DashboardSta
     }),
     prisma.supplier.count({ where: { ...whereSuppliers, status: true } }),
     prisma.supplier.count({ where: { ...whereSuppliers, status: false } }),
-    prisma.category.count({ where: { ...whereUser, status: true } }),
-    prisma.category.count({ where: { ...whereUser, status: false } }),
+    prisma.productCategory.count({ where: { ...whereUser, status: true } }),
+    prisma.productCategory.count({ where: { ...whereUser, status: false } }),
     prisma.supportTicket.groupBy({
       by: ["status"],
       where: { assignedToId: userId },
@@ -654,4 +654,59 @@ export async function getDashboardForAdmin(userId: string): Promise<DashboardSta
   };
   await setCache(cacheKey, result, 300);
   return result;
+}
+
+export async function getInventoryKpiSummary(userId: string) {
+  const [
+    totalProducts,
+    products,
+    pendingDeliveries,
+    pendingTransfers,
+  ] = await Promise.all([
+    prisma.product.count({ where: { userId } }),
+    prisma.product.findMany({
+      where: { userId },
+      select: {
+        reorderLevel: true,
+        quantity: true,
+      }
+    }),
+    prisma.deliveryOrder.count({
+      where: {
+        userId,
+        status: { in: ["pending", "WAITING"] }
+      }
+    }),
+    prisma.stockTransfer.count({
+      where: {
+        userId,
+        status: "pending"
+      }
+    })
+  ]);
+
+  let lowStockItems = 0;
+  let outOfStockItems = 0;
+
+  for (const product of products) {
+    const quantity = Number(product.quantity);
+    if (quantity === 0) {
+      outOfStockItems++;
+    } else if (quantity < (product.reorderLevel || 0)) {
+      lowStockItems++;
+    }
+  }
+
+  // Since Receipt model is missing in schema, we'll return 0 for now as a placeholder
+  // or use a different logic if discovered later.
+  const pendingReceipts = 0;
+
+  return {
+    total_products: totalProducts,
+    low_stock_items: lowStockItems,
+    out_of_stock_items: outOfStockItems,
+    pending_receipts: pendingReceipts,
+    pending_deliveries: pendingDeliveries,
+    pending_transfers: pendingTransfers,
+  };
 }

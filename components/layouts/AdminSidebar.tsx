@@ -82,6 +82,11 @@ const MY_STORE_ITEMS: NavItem[] = [
     icon: Star,
     countKey: "productReviews",
   },
+  {
+    href: "/admin/delivery-orders",
+    label: "Delivery Orders",
+    icon: Truck,
+  },
 ];
 
 const MANAGEMENT_ITEMS: NavItem[] = [

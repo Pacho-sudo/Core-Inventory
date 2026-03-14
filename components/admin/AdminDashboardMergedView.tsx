@@ -4,6 +4,7 @@ import React from "react";
 import { PageContentWrapper } from "@/components/shared";
 import AdminDashboardOverview from "./AdminDashboardOverview";
 import AdminAnalyticsContent from "./AdminAnalyticsContent";
+import { InventoryKpis } from "../dashboard/InventoryKpis";
 import type { DashboardStats } from "@/types";
 
 export type AdminDashboardMergedViewProps = {
@@ -36,6 +37,7 @@ export default function AdminDashboardMergedView({
           title={title}
           subtitle={subtitle}
         /> */}
+        <InventoryKpis />
         <AdminAnalyticsContent initialStats={initialStats} />
       </div>
     </PageContentWrapper>

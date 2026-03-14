@@ -53,7 +53,7 @@ export async function GET(
     // Fetch category (admin or client: any by id; else own by userId)
     const category =
       isAdmin || isClient
-        ? await prisma.category.findUnique({ where: { id } })
+        ? await prisma.productCategory.findUnique({ where: { id } })
         : await getCategoryById(id, userId);
 
     if (!category) {

@@ -74,7 +74,7 @@ async function deleteUser(email?: string) {
     const supplierCount = await prisma.supplier.count({
       where: { userId: user.id },
     });
-    const categoryCount = await prisma.category.count({
+    const categoryCount = await prisma.productCategory.count({
       where: { userId: user.id },
     });
 

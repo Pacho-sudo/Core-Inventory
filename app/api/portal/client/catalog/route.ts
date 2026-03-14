@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
         take: CATALOG_LIMIT_SUPPLIERS,
         select: { id: true, name: true, status: true },
       }),
-      prisma.category.findMany({
+      prisma.productCategory.findMany({
         orderBy: { name: "asc" },
         take: CATALOG_LIMIT_CATEGORIES,
         select: { id: true, name: true, status: true, userId: true },
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
     ];
     const [categoryList, supplierList, supplierCounts, categoryCounts, users] =
       await Promise.all([
-        prisma.category.findMany({
+        prisma.productCategory.findMany({
           where: { id: { in: categoryIds } },
           select: { id: true, name: true },
         }),

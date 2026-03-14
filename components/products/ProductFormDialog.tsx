@@ -35,6 +35,9 @@ import Quantity from "./form-fields/QuantityField";
 import Price from "./form-fields/PriceField";
 import ImageField from "./form-fields/ImageField";
 import ExpirationDateField from "./form-fields/ExpirationDateField";
+import UnitOfMeasure from "./form-fields/UnitOfMeasureField";
+import ReorderLevel from "./form-fields/ReorderLevelField";
+import InitialStock from "./form-fields/InitialStockField";
 import { Product } from "@/types";
 import {
   productSchema,
@@ -63,6 +66,9 @@ export default function AddProductDialog({
       imageUrl: "",
       imageFileId: "",
       expirationDate: "",
+      unitOfMeasure: "Unit",
+      reorderLevel: 0,
+      initialStock: 0,
     },
   });
 
@@ -109,6 +115,9 @@ export default function AddProductDialog({
         expirationDate: selectedProduct.expirationDate
           ? new Date(selectedProduct.expirationDate).toISOString().split("T")[0]
           : "",
+        unitOfMeasure: (selectedProduct as any).unitOfMeasure || "Unit",
+        reorderLevel: (selectedProduct as any).reorderLevel || 0,
+        initialStock: (selectedProduct as any).initialStock || 0,
       });
       setSelectedCategory(selectedProduct.categoryId || "");
       setSelectedSupplier(selectedProduct.supplierId || "");
@@ -122,6 +131,9 @@ export default function AddProductDialog({
         imageUrl: "",
         imageFileId: "",
         expirationDate: "",
+        unitOfMeasure: "Unit",
+        reorderLevel: 0,
+        initialStock: 0,
       });
       setSelectedCategory("");
       setSelectedSupplier("");
@@ -163,6 +175,9 @@ export default function AddProductDialog({
           imageUrl: data.imageUrl || undefined,
           imageFileId: data.imageFileId || undefined,
           expirationDate: expirationDate || undefined,
+          unitOfMeasure: data.unitOfMeasure,
+          reorderLevel: Number(data.reorderLevel),
+          initialStock: Number(data.initialStock),
         });
 
         // Close dialog on success (toast is handled by mutation hook)
@@ -182,6 +197,8 @@ export default function AddProductDialog({
           imageUrl: data.imageUrl || undefined,
           imageFileId: data.imageFileId || undefined,
           expirationDate: expirationDate,
+          unitOfMeasure: data.unitOfMeasure,
+          reorderLevel: Number(data.reorderLevel),
         });
 
         // Close dialog on success (toast is handled by mutation hook)
@@ -239,6 +256,9 @@ export default function AddProductDialog({
               <SKU allProducts={allProducts} />
               <Quantity />
               <Price />
+              <UnitOfMeasure />
+              <ReorderLevel />
+              {!selectedProduct && <InitialStock />}
               <ExpirationDateField />
               <ImageField />
               <div className="mt-5 flex flex-col gap-2">

@@ -51,8 +51,8 @@ export async function GET(request: NextRequest) {
       prisma.user.count({ where: { role: "client" } }),
       prisma.supplier.count({ where: { status: true } }),
       prisma.supplier.count({ where: { status: false } }),
-      prisma.category.count({ where: { status: true } }),
-      prisma.category.count({ where: { status: false } }),
+      prisma.productCategory.count({ where: { status: true } }),
+      prisma.productCategory.count({ where: { status: false } }),
       prisma.warehouse.count({ where: { isActive: true } }),
       prisma.warehouse.count({ where: { isActive: false } }),
     ]);

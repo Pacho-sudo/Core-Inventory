@@ -53,7 +53,7 @@ async function main() {
   const auditLog = await prisma.auditLog.deleteMany({});
   console.log(`   AuditLog: ${auditLog.count}`);
 
-  const category = await prisma.category.deleteMany({});
+  const category = await prisma.productCategory.deleteMany({});
   console.log(`   Category: ${category.count}`);
 
   const supplier = await prisma.supplier.deleteMany({});
