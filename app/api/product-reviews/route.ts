@@ -207,11 +207,23 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    logger.info("Product review created successfully", {
+      reviewId: created.id,
+      productId: created.productId,
+      userId,
+    });
+
     return NextResponse.json(transform(created), { status: 201 });
   } catch (error) {
-    logger.error("Error creating product review:", error);
+    logger.error("Error creating product review:", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     return NextResponse.json(
-      { error: "Failed to create product review" },
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to create product review",
+      },
       { status: 500 },
     );
   }

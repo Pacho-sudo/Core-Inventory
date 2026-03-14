@@ -319,7 +319,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Transform order for response
+    // Transform order for response explicitly to handle potential BigInts (though OrderItem quantity is Int)
+    // and ensure all dates are ISO strings.
     const transformedOrder = {
       id: order.id,
       orderNumber: order.orderNumber,
@@ -327,11 +328,11 @@ export async function POST(request: NextRequest) {
       clientId: order.clientId,
       status: order.status,
       paymentStatus: order.paymentStatus,
-      subtotal: order.subtotal,
-      tax: order.tax,
-      shipping: order.shipping,
-      discount: order.discount,
-      total: order.total,
+      subtotal: Number(order.subtotal),
+      tax: order.tax ? Number(order.tax) : null,
+      shipping: order.shipping ? Number(order.shipping) : null,
+      discount: order.discount ? Number(order.discount) : null,
+      total: Number(order.total),
       shippingAddress: order.shippingAddress,
       billingAddress: order.billingAddress,
       notes: order.notes,
@@ -353,16 +354,19 @@ export async function POST(request: NextRequest) {
         productId: item.productId,
         productName: item.productName,
         sku: item.sku,
-        quantity: item.quantity,
-        price: item.price,
-        subtotal: item.subtotal,
+        quantity: Number(item.quantity),
+        price: Number(item.price),
+        subtotal: Number(item.subtotal),
         createdAt: item.createdAt.toISOString(),
       })),
     };
 
     return NextResponse.json(transformedOrder, { status: 201 });
   } catch (error) {
-    logger.error("Error creating order:", error);
+    logger.error("Error creating order:", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     return NextResponse.json(
       {
         error:

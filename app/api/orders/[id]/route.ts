@@ -111,7 +111,7 @@ export async function GET(
       select: { id: true, invoiceNumber: true },
     });
 
-    // Transform order for response
+    // Transform order for response explicitly to handle potential BigInts
     const transformedOrder = {
       id: order.id,
       orderNumber: order.orderNumber,
@@ -119,11 +119,11 @@ export async function GET(
       clientId: order.clientId,
       status: order.status,
       paymentStatus: order.paymentStatus,
-      subtotal: order.subtotal,
-      tax: order.tax,
-      shipping: order.shipping,
-      discount: order.discount,
-      total: order.total,
+      subtotal: Number(order.subtotal),
+      tax: order.tax ? Number(order.tax) : null,
+      shipping: order.shipping ? Number(order.shipping) : null,
+      discount: order.discount ? Number(order.discount) : null,
+      total: Number(order.total),
       shippingAddress: order.shippingAddress,
       billingAddress: order.billingAddress,
       notes: order.notes,
@@ -146,26 +146,15 @@ export async function GET(
         ? { id: invoiceForOrder.id, invoiceNumber: invoiceForOrder.invoiceNumber }
         : null,
       items: (order.items || []).map(
-        (item: {
-          id: string;
-          orderId: string;
-          productId: string;
-          productName: string;
-          sku: string | null;
-          quantity: number;
-          price: number;
-          subtotal: number;
-          createdAt: Date;
-          product?: { categoryId?: string | null; supplierId?: string | null };
-        }) => ({
+        (item: any) => ({
           id: item.id,
           orderId: item.orderId,
           productId: item.productId,
           productName: item.productName,
           sku: item.sku,
-          quantity: item.quantity,
-          price: item.price,
-          subtotal: item.subtotal,
+          quantity: Number(item.quantity),
+          price: Number(item.price),
+          subtotal: Number(item.subtotal),
           createdAt: item.createdAt.toISOString(),
           categoryId: item.product?.categoryId ?? null,
           supplierId: item.product?.supplierId ?? null,
@@ -175,9 +164,13 @@ export async function GET(
 
     return NextResponse.json(transformedOrder);
   } catch (error) {
-    logger.error("Error fetching order:", error);
+    logger.error("Error fetching order detail:", {
+      orderId: (await params).id,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     return NextResponse.json(
-      { error: "Failed to fetch order" },
+      { error: "Failed to fetch order details" },
       { status: 500 },
     );
   }
@@ -437,22 +430,8 @@ export async function PUT(
       }
     }
 
-    // Transform order for response
-    // Note: order.items is included from updateOrder's include clause
-    const orderWithItems = order as typeof order & {
-      items: Array<{
-        id: string;
-        orderId: string;
-        productId: string;
-        productName: string;
-        sku: string | null;
-        quantity: number;
-        price: number;
-        subtotal: number;
-        createdAt: Date;
-      }>;
-    };
-
+    // Transform order for response explicitly
+    const orderWithItems = order as any;
     const transformedOrder = {
       id: orderWithItems.id,
       orderNumber: orderWithItems.orderNumber,
@@ -460,11 +439,11 @@ export async function PUT(
       clientId: orderWithItems.clientId,
       status: orderWithItems.status,
       paymentStatus: orderWithItems.paymentStatus,
-      subtotal: orderWithItems.subtotal,
-      tax: orderWithItems.tax,
-      shipping: orderWithItems.shipping,
-      discount: orderWithItems.discount,
-      total: orderWithItems.total,
+      subtotal: Number(orderWithItems.subtotal),
+      tax: orderWithItems.tax ? Number(orderWithItems.tax) : null,
+      shipping: orderWithItems.shipping ? Number(orderWithItems.shipping) : null,
+      discount: orderWithItems.discount ? Number(orderWithItems.discount) : null,
+      total: Number(orderWithItems.total),
       shippingAddress: orderWithItems.shippingAddress,
       billingAddress: orderWithItems.billingAddress,
       notes: orderWithItems.notes,
@@ -481,22 +460,26 @@ export async function PUT(
       updatedAt: orderWithItems.updatedAt?.toISOString() || null,
       createdBy: orderWithItems.createdBy,
       updatedBy: orderWithItems.updatedBy,
-      items: (orderWithItems.items || []).map((item) => ({
+      items: (orderWithItems.items || []).map((item: any) => ({
         id: item.id,
         orderId: item.orderId,
         productId: item.productId,
         productName: item.productName,
         sku: item.sku,
-        quantity: item.quantity,
-        price: item.price,
-        subtotal: item.subtotal,
+        quantity: Number(item.quantity),
+        price: Number(item.price),
+        subtotal: Number(item.subtotal),
         createdAt: item.createdAt.toISOString(),
       })),
     };
 
     return NextResponse.json(transformedOrder);
   } catch (error) {
-    logger.error("Error updating order:", error);
+    logger.error("Error updating order:", {
+      orderId: (await params).id,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     return NextResponse.json(
       {
         error:
@@ -588,11 +571,11 @@ export async function DELETE(
       clientId: order.clientId,
       status: order.status,
       paymentStatus: order.paymentStatus,
-      subtotal: order.subtotal,
-      tax: order.tax,
-      shipping: order.shipping,
-      discount: order.discount,
-      total: order.total,
+      subtotal: Number(order.subtotal),
+      tax: order.tax ? Number(order.tax) : null,
+      shipping: order.shipping ? Number(order.shipping) : null,
+      discount: order.discount ? Number(order.discount) : null,
+      total: Number(order.total),
       shippingAddress: order.shippingAddress,
       billingAddress: order.billingAddress,
       notes: order.notes,
@@ -609,25 +592,15 @@ export async function DELETE(
       createdBy: order.createdBy,
       updatedBy: order.updatedBy,
       items: (order.items || []).map(
-        (item: {
-          id: string;
-          orderId: string;
-          productId: string;
-          productName: string;
-          sku: string | null;
-          quantity: number;
-          price: number;
-          subtotal: number;
-          createdAt: Date;
-        }) => ({
+        (item: any) => ({
           id: item.id,
           orderId: item.orderId,
           productId: item.productId,
           productName: item.productName,
           sku: item.sku,
-          quantity: item.quantity,
-          price: item.price,
-          subtotal: item.subtotal,
+          quantity: Number(item.quantity),
+          price: Number(item.price),
+          subtotal: Number(item.subtotal),
           createdAt: item.createdAt.toISOString(),
         }),
       ),
@@ -635,7 +608,11 @@ export async function DELETE(
 
     return NextResponse.json(transformedOrder);
   } catch (error) {
-    logger.error("Error cancelling order:", error);
+    logger.error("Error cancelling order:", {
+      orderId: (await params).id,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     return NextResponse.json(
       {
         error:

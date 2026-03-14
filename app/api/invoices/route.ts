@@ -232,7 +232,7 @@ export async function POST(request: NextRequest) {
     const { invalidateAllServerCaches } = await import("@/lib/cache");
     await invalidateAllServerCaches().catch(() => {});
 
-    // Transform invoice for response
+    // Transform invoice for response explicitly to handle potential BigInts
     const transformedInvoice = {
       id: invoice.id,
       invoiceNumber: invoice.invoiceNumber,
@@ -240,13 +240,13 @@ export async function POST(request: NextRequest) {
       userId: invoice.userId,
       clientId: invoice.clientId,
       status: invoice.status,
-      subtotal: invoice.subtotal,
-      tax: invoice.tax,
-      shipping: invoice.shipping ?? null,
-      discount: invoice.discount,
-      total: invoice.total,
-      amountPaid: invoice.amountPaid,
-      amountDue: invoice.amountDue,
+      subtotal: Number(invoice.subtotal),
+      tax: invoice.tax ? Number(invoice.tax) : null,
+      shipping: invoice.shipping ? Number(invoice.shipping) : null,
+      discount: invoice.discount ? Number(invoice.discount) : null,
+      total: Number(invoice.total),
+      amountPaid: Number(invoice.amountPaid),
+      amountDue: Number(invoice.amountDue),
       dueDate: invoice.dueDate.toISOString(),
       issuedAt: invoice.issuedAt.toISOString(),
       sentAt: invoice.sentAt?.toISOString() || null,
@@ -270,7 +270,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(transformedInvoice, { status: 201 });
   } catch (error) {
-    logger.error("Error creating invoice:", error);
+    logger.error("Error creating invoice:", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     return NextResponse.json(
       {
         error:

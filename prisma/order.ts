@@ -140,7 +140,7 @@ export async function createOrder(data: CreateOrderInput, userId: string) {
     await prisma.product.update({
       where: { id: p.id },
       data: {
-        reservedQuantity: { increment: p.qty },
+        reservedQuantity: { increment: BigInt(p.qty) },
       },
     });
   }
@@ -585,7 +585,7 @@ export async function updateOrder(
         await prisma.product.update({
           where: { id: item.productId },
           data: {
-            quantity: { increment: item.quantity },
+            quantity: { increment: BigInt(item.quantity) },
           },
         });
       }
@@ -595,7 +595,7 @@ export async function updateOrder(
         await prisma.product.update({
           where: { id: item.productId },
           data: {
-            reservedQuantity: { decrement: item.quantity },
+            reservedQuantity: { decrement: BigInt(item.quantity) },
           },
         });
       }
@@ -606,8 +606,8 @@ export async function updateOrder(
       await prisma.product.update({
         where: { id: item.productId },
         data: {
-          quantity: { decrement: item.quantity },
-          reservedQuantity: { decrement: item.quantity },
+          quantity: { decrement: BigInt(item.quantity) },
+          reservedQuantity: { decrement: BigInt(item.quantity) },
         },
       });
     }
@@ -618,7 +618,7 @@ export async function updateOrder(
       await prisma.product.update({
         where: { id: item.productId },
         data: {
-          quantity: { decrement: item.quantity },
+          quantity: { decrement: BigInt(item.quantity) },
         },
       });
     }
@@ -751,7 +751,7 @@ export async function cancelOrder(orderId: string, userId: string) {
         await prisma.product.update({
           where: { id: item.productId },
           data: {
-            quantity: { increment: item.quantity },
+            quantity: { increment: BigInt(item.quantity) },
           },
         });
       }
@@ -761,7 +761,7 @@ export async function cancelOrder(orderId: string, userId: string) {
         await prisma.product.update({
           where: { id: item.productId },
           data: {
-            reservedQuantity: { decrement: item.quantity },
+            reservedQuantity: { decrement: BigInt(item.quantity) },
           },
         });
       }
